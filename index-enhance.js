@@ -83,16 +83,21 @@
   if(leadForm){
     const extra=document.createElement('div');extra.className='form-row';extra.innerHTML=`<div><label class="label" for="lead-url">Website ou perfil público</label><input class="input" id="lead-url" type="url" placeholder="https://..."></div><div><label class="label" for="lead-state">Situação</label><select id="lead-state"><option value="friction">Site com possível fricção</option><option value="none">Sem website encontrado</option><option value="good">Site aparentemente bom</option><option value="expansion">Expansão ou novo serviço</option></select></div><div><label class="label" for="lead-contact">Contato profissional</label><input class="input" id="lead-contact" placeholder="E-mail ou telefone profissional"></div><div><label class="label" for="lead-action">Próxima ação</label><input class="input" id="lead-action" placeholder="Enviar vídeo de auditoria"></div></div>`;
     leadForm.insertBefore(extra,leadForm.querySelector('button[type=submit]'));
-    // Continuidade da primeira missão: reaproveitar evidência sem gerar lead automaticamente.
+    // Handoff explícito: só preenche o CRM quando o usuário escolhe um diagnóstico.
     try{
+      const selected=sessionStorage.getItem('fieldwork-selected-audit');
       const audits=JSON.parse(localStorage.getItem('fieldwork-audits-v2')||'[]');
       const current=JSON.parse(localStorage.getItem('fieldwork-10x30-v1')||'{}');
-      const next=audits.find(a=>a.company&&!current.leads?.some(l=>l.name.toLowerCase()===a.company.toLowerCase()));
+      const next=selected&&audits.find(a=>a.id===selected);
       if(next){
         $('#lead-name').value=next.company;$('#lead-niche').value=next.niche||'';
-        $('#lead-url').value=next.url||'';$('#lead-state').value=next.state||'friction';
+        $('#lead-url').value=next.url||'';$('#lead-state').value=next.state||'good';
         $('#lead-note').value=(next.observation||'').slice(0,250);
-        leadForm.insertAdjacentHTML('afterbegin','<p class="fw-prefill-note">Diagnóstico recuperado do Blue Book. Confira os dados, escolha uma próxima ação e registre o prospect.</p>');
+        $('#lead-action').value=next.action||'Confirmar a prioridade do diagnóstico com o proprietário';
+        if(['Site novo','Redesign','Auditoria/correção'].includes(next.recommendation))$('#lead-type').value=next.recommendation;
+        const duplicate=current.leads?.some(l=>l.name.toLowerCase()===String(next.company).toLowerCase());
+        leadForm.insertAdjacentHTML('afterbegin',`<p class="fw-prefill-note">${duplicate?'Este negócio já aparece no CRM. Revise antes de criar outro registro.':'Dados do diagnóstico recuperados. Revise, escolha uma próxima ação e cadastre apenas se fizer sentido.'} <a href="bluebook.html#primeira-missao">Voltar ao diagnóstico</a></p>`);
+        sessionStorage.removeItem('fieldwork-selected-audit');
       }
     }catch{/* Sem diagnóstico salvo neste navegador. */}
   }

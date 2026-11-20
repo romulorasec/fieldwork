@@ -1,0 +1,13 @@
+{
+  "name": "fieldwork-10x30",
+  "private": true,
+  "description": "Projeto estático; dependências usadas apenas para testes locais.",
+  "scripts": {
+    "test": "node --test tests/dom.test.mjs",
+    "test:browser": "node tests/smoke.cjs"
+  },
+  "devDependencies": {
+    "happy-dom": "^21.0.4",
+    "playwright": "^1.62.1"
+  }
+}

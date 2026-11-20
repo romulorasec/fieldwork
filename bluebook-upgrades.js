@@ -1,11 +1,11 @@
 /* Fieldwork Blue Book: instrução contextual, critérios de verificação e prática registrada. */
 (() => {
   'use strict';
-  const KEY='fieldwork-pratica-v2', AUDITS='fieldwork-audits-v2';
+  const KEY='fieldwork-pratica-v2';
   const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
   const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','"':'&quot;',"'":'&#39;'}[c]));
   const read=(k,f)=>{try{return JSON.parse(localStorage.getItem(k)||JSON.stringify(f))}catch{return f}};
-  const records=read(KEY,{}), audits=read(AUDITS,[]);
+  const records=read(KEY,{});
   const save=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));return true}catch{return false}};
   const recipes={
     'inteligencia-de-mercado-1':{
@@ -244,15 +244,9 @@
   if(bodyAnchor){
     bodyAnchor.innerHTML='<strong>Como usar este guia:</strong> comece pelo diagnóstico abaixo; depois abra apenas a prática que resolve sua próxima dúvida. Registre uma evidência real para acompanhar o progresso. Ler uma lição não equivale a executar a tarefa.';
     const start=document.createElement('section');start.id='primeira-missao';start.className='bb-start';
-    start.innerHTML=`<div class="bb-start-head"><div><span class="eyebrow">COMECE PELO CAMPO</span><h2>Uma oportunidade real em 20 minutos.</h2><p>Pesquise uma empresa, descubra a ação que o cliente deveria conseguir realizar e registre uma evidência. Depois aprofunde o assunto apenas quando precisar.</p></div><a href="index.html#plan&day=1" class="bb-action">Abrir missão do dia 1</a></div><form id="audit-form" class="bb-audit"><label>Nicho<select name="niche" required>${sectors.map(x=>`<option>${safe(x[0])}</option>`).join('')}</select></label><label>Empresa / prospect<input name="company" placeholder="Nome real da empresa" required maxlength="120"></label><label>Estado do website<select name="state"><option value="friction">Site com possível fricção</option><option value="none">Não encontrei website</option><option value="good">Site aparentemente bom</option><option value="expansion">Negócio novo ou em expansão</option></select></label><label>URL pública ou perfil do Google<input name="url" type="url" placeholder="https://..." required></label><label class="bb-wide">O que observou? Descreva um fato, não uma perda de vendas<textarea name="observation" rows="2" required minlength="16" placeholder="No celular, o botão de orçamento fica após várias seções..."></textarea></label><div class="bb-audit-foot"><p><strong>Critério de conclusão:</strong> empresa identificada, URL, situação e observação reproduzível. Não é necessário contatar a empresa nesta etapa.</p><button type="submit" class="bb-action">Salvar primeiro diagnóstico</button></div><p id="audit-feedback" aria-live="polite" class="bb-feedback"></p></form><div id="audit-history" class="bb-history"></div>`;
+    start.innerHTML='<div class="bb-start-head"><div><span class="eyebrow">COMECE PELO CAMPO</span><h2>Observe, entenda, proponha.</h2><p>Uma análise rápida para começar a agir. Aprofunde somente quando encontrar uma oportunidade que mereça investigação.</p></div><a href="index.html#plan&day=1" class="bb-action secondary">Abrir missão do dia 1</a></div><div id="audit-workbench"></div>';
     bodyAnchor.parentNode.insertBefore(start,bodyAnchor.nextSibling);
-    const form=$('#audit-form');
-    form.addEventListener('submit',e=>{e.preventDefault();if(!form.reportValidity())return;const data=Object.fromEntries(new FormData(form).entries());const row={...data,created:new Date().toISOString()};audits.unshift(row);save(AUDITS,audits);$('#audit-feedback').textContent='Diagnóstico salvo neste navegador. Próximo passo: registrar e escolher abordagem.';showAudits();});
   }
-  function showAudits(){
-    const el=$('#audit-history');if(!el)return;
-    el.innerHTML=audits.length?`<h3>Seus diagnósticos registrados</h3><ul>${audits.slice(0,6).map(a=>`<li><strong>${safe(a.company)}</strong> · ${safe(a.niche)} · ${safe(branches[a.state]?.label||'A analisar')}<span>${safe(a.observation)}</span></li>`).join('')}</ul><a class="bb-action secondary" href="index.html#crm">Abrir CRM e registrar próximo contato</a>`:'';
-  }showAudits();
   const niches=document.createElement('section');niches.id='olho-de-aguia';niches.className='bb-library';
   niches.innerHTML=`<header><span class="eyebrow">DIAGNÓSTICO DE CONVERSÃO</span><h2>Olho de Águia: dez nichos.</h2><p>O objetivo não é achar o site mais feio. Descubra a intenção do visitante, a ação principal e o obstáculo verificável. Estes nichos são candidatos a teste, não ranking de lucro.</p></header><div class="bb-sector-grid">${sectors.map(s=>`<article><h3>${safe(s[0])}</h3><p><b>Conversão</b> · ${safe(s[1])}</p><p><b>O que observar</b> · ${safe(s[2])}</p><p class="bb-risk"><b>Possível sinal</b> · ${safe(s[3])}</p></article>`).join('')}</div><div class="bb-principle"><strong>Cinco perguntas antes de avaliar qualquer site:</strong> intenção do visitante, clareza da oferta, provas de confiança, facilidade da ação e continuidade após o contato.</div></section>`;
   const startNode=$('#primeira-missao');if(startNode)startNode.after(niches);
@@ -318,4 +312,9 @@
   const noresult=document.createElement('p');noresult.className='bb-noresults';noresult.hidden=true;noresult.textContent='Nenhuma lição encontrada. Experimente procurar por nicho, prospecção, oferta ou auditoria.';
   $('.toolbar')?.after(noresult);
   search?.addEventListener('input',()=>{const visible=$$('.lesson:not(.hidden)').length;noresult.hidden=Boolean(visible)||!search.value.trim();});
+})();
+// Carrega o laboratório progressivo após o conteúdo e as lições do Blue Book.
+(() => {
+  const style=document.createElement('link');style.rel='stylesheet';style.href='conversion-audit.css';document.head.append(style);
+  const script=document.createElement('script');script.src='conversion-audit.js';document.body.append(script);
 })();
