@@ -12,6 +12,7 @@ textarea{resize:vertical}
 .fw-advanced .navlink{font-size:13px;padding:10px;margin:0}
 .bb-expand,.bb-action,.bb-branch-tabs button,.bb-script button,.fw-mobile-nav button,.fw-mobile-drawer button{font:inherit;cursor:pointer}
 .bb-start,.bb-library{background:#fff;border:1px solid var(--fw-border);border-radius:20px;padding:28px;margin:24px 0;box-shadow:0 6px 30px #17324a08;scroll-margin-top:20px}
+.bb-start .eyebrow,.bb-library .eyebrow,.module>header .eyebrow{color:#087668}
 .bb-start-head{display:flex;gap:24px;justify-content:space-between;align-items:center;margin-bottom:20px}
 .bb-start h2,.bb-library h2{font-size:clamp(24px,3vw,35px);line-height:1.2;margin:8px 0}
 .bb-start p,.bb-library p{color:#4f6275;line-height:1.6}
