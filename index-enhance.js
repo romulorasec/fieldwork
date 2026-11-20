@@ -45,18 +45,19 @@
         <span class="eyebrow">FIELDWORK / APRENDER A VENDER WEBSITES QUE CONVERTEM</span>
         <h1 id="fieldwork-home-title">Seu próximo cliente começa com uma boa observação.</h1>
         <p>Pesquise uma empresa real, encontre um obstáculo verificável no caminho até o contato e descubra se há um problema que vale resolver. O Blue Book ensina. A trilha organiza. O CRM acompanha.</p>
-        <div class="fw-new-actions"><a class="primary" href="bluebook.html#primeira-missao">Começar meu primeiro diagnóstico</a><button class="secondary" type="button" data-jump="plan">Continuar trilha de 30 dias</button></div>
+        <div class="fw-new-actions"><a class="primary" href="bluebook.html#primeira-missao">Começar meu primeiro diagnóstico</a><a class="secondary" href="cloud.html" style="color:#fff;border-color:#8edcd1">Entrar no workspace</a><button class="secondary" type="button" data-jump="plan">Continuar trilha de 30 dias</button></div>
         <p class="fw-status-note" style="color:#b1d3d5">Meta de 10 contratos em 30 dias: desafio comercial, não previsão. Uma boa análise também pode concluir que não existe oportunidade.</p>
       </div>
       <aside class="fw-start-steps" aria-label="Primeiros passos"><strong>Primeira sessão · cerca de 30 minutos</strong><ol><li>Entenda o que é conversão para um negócio local.</li><li>Escolha um nicho e pesquise três empresas.</li><li>Documente um problema ou a ausência de evidência.</li><li>Salve o diagnóstico e defina a próxima ação.</li></ol></aside>
     </section>`;
   }
-  $('.fw-section-heading')?.insertAdjacentHTML('beforebegin',`<div class="fw-home-connections"><a href="bluebook.html#olho-de-aguia">Olho de Águia: 10 nichos</a><a href="bluebook.html#situacoes">Abordagem por situação</a><a href="bluebook.html#casos-reais">Estudos de caso</a><button type="button" data-jump="crm">Abrir CRM</button><p>Escolha conteúdo apenas se ele ajudar a resolver sua próxima tarefa. Cada missão tem um link direto para o procedimento.</p></div>`);
+  $('.fw-section-heading')?.insertAdjacentHTML('beforebegin',`<div class="fw-home-connections"><a href="bluebook.html#olho-de-aguia">Olho de Águia: 10 nichos</a><a href="bluebook.html#situacoes">Abordagem por situação</a><a href="bluebook.html#casos-reais">Estudos de caso</a><a href="cloud.html">Workspace privado</a><button type="button" data-jump="crm">Abrir CRM legado</button><p>Escolha conteúdo apenas se ele ajudar a resolver sua próxima tarefa. Cada missão tem um link direto para o procedimento.</p></div>`);
   $('.fw-section-heading')?.remove();
   $('.fw-entry-grid')?.remove();$('.fw-bridge')?.remove();
   // Organização da barra lateral por trabalho realizado; ferramentas secundárias ficam recolhidas.
   const side=$('.sidebar');
   if(side){
+    side.querySelector('nav')?.insertAdjacentHTML('beforeend','<a class="navlink" href="cloud.html" style="display:block;text-decoration:none;padding:11px 14px;color:#8ee9d6">Entrar no workspace privado</a>');
     const titles={overview:'Hoje',market:'Pesquisa de mercado',strategy:'Posicionamento',offers:'Ofertas',plan:'Missões · 30 dias',simulator:'Simulador de cenários',crm:'Prospects e CRM',scripts:'Mensagens comerciais',sources:'Fontes e método'};
     $$('[data-view]').filter(x=>x.classList.contains('navlink')).forEach(b=>{const t=titles[b.dataset.view];if(!t)return;const node=[...b.childNodes].find(n=>n.nodeType===Node.TEXT_NODE&&n.textContent.trim());if(node)node.textContent=t;});
     const library=side.querySelector('a[href="bluebook.html"]');if(library){library.lastChild.textContent='Blue Book · Biblioteca';}
@@ -69,7 +70,7 @@
   mobile.innerHTML=[['overview','Hoje','home'],['plan','Missões','list'],['crm','Prospects','search'],['scripts','Vendas','chart']].map(([v,n,ic])=>`<button type="button" data-mobile-go="${v}">${icon(ic)}<span>${n}</span></button>`).join('')+`<button type="button" id="mobile-menu" aria-expanded="false" aria-controls="mobile-drawer">${icon('menu')}<span>Mais</span></button>`;
   const backdrop=document.createElement('div');backdrop.className='fw-mobile-backdrop';backdrop.id='mobile-backdrop';backdrop.hidden=true;
   const drawer=document.createElement('aside');drawer.className='fw-mobile-drawer';drawer.id='mobile-drawer';drawer.hidden=true;
-  drawer.innerHTML='<strong>Explorar Fieldwork</strong><a href="bluebook.html#primeira-missao">Primeiro diagnóstico</a><a href="bluebook.html#olho-de-aguia">Olho de Águia</a><a href="bluebook.html#situacoes">Abordagens por cenário</a><a href="bluebook.html">Blue Book completo</a><button data-mobile-go="offers" type="button">Ofertas e laboratório</button><button data-mobile-go="market" type="button">Pesquisa de mercado</button><button data-mobile-go="strategy" type="button">Posicionamento</button><button data-mobile-go="simulator" type="button">Simulador</button><button data-mobile-go="sources" type="button">Fontes e método</button>';
+  drawer.innerHTML='<strong>Explorar Fieldwork</strong><a href="cloud.html">Entrar no workspace privado</a><a href="bluebook.html#primeira-missao">Primeiro diagnóstico</a><a href="bluebook.html#olho-de-aguia">Olho de Águia</a><a href="bluebook.html#situacoes">Abordagens por cenário</a><a href="bluebook.html">Blue Book completo</a><button data-mobile-go="offers" type="button">Ofertas e laboratório</button><button data-mobile-go="market" type="button">Pesquisa de mercado</button><button data-mobile-go="strategy" type="button">Posicionamento</button><button data-mobile-go="simulator" type="button">Simulador</button><button data-mobile-go="sources" type="button">Fontes e método</button>';
   document.body.append(backdrop,drawer,mobile);
   function closeDrawer(){drawer.hidden=true;backdrop.hidden=true;$('#mobile-menu').setAttribute('aria-expanded','false');}
   $('#mobile-menu').addEventListener('click',()=>{const next=drawer.hidden;drawer.hidden=!next;backdrop.hidden=!next;$('#mobile-menu').setAttribute('aria-expanded',String(next));});

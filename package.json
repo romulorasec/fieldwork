@@ -3,11 +3,16 @@
   "private": true,
   "description": "Projeto estático; dependências usadas apenas para testes locais.",
   "scripts": {
+    "build:cloud": "esbuild cloud.ts --bundle --format=esm --target=es2022 --minify --outfile=cloud.bundle.js",
     "test": "node --test tests/dom.test.mjs",
     "test:browser": "node tests/smoke.cjs"
   },
   "devDependencies": {
+    "esbuild": "^0.25.12",
     "happy-dom": "^21.0.4",
     "playwright": "^1.62.1"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.119.2"
   }
 }

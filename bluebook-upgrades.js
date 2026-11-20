@@ -3,6 +3,7 @@
   'use strict';
   const KEY='fieldwork-pratica-v2';
   const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+  $('.side .back')?.insertAdjacentHTML('beforebegin','<a class="back" href="cloud.html" style="color:#8cf0d2">Entrar no workspace privado</a>');
   const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','"':'&quot;',"'":'&#39;'}[c]));
   const read=(k,f)=>{try{return JSON.parse(localStorage.getItem(k)||JSON.stringify(f))}catch{return f}};
   const records=read(KEY,{});
