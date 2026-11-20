@@ -42,6 +42,8 @@ test('diagnóstico rápido e aprofundamento preservam respostas', () => {
   assert.equal(saved[0].recommendation,'Auditoria/correção');
   assert.match($('#ca-result').textContent,/botão de orçamento/);
   assert.match($('#ca-result').textContent,/PRÓXIMA DECISÃO/);
+  assert.match($('.ca-recommend').textContent,/Primeira melhoria a considerar/);
+  assert.match($('.ca-outreach').textContent,/O botão de orçamento abre uma página inexistente/);
   $('[data-deepen]').click();
   assert.equal($$('.ca-criterion').length,14);
   assert.equal($('[data-note="cta"]').value,'O botão de orçamento abre uma página inexistente no celular.');

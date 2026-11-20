@@ -75,6 +75,12 @@
   ];
 
   const quick = ['clarity','cta','trust','mobile'];
+  const englishGoals = {
+    Roofing:'request an inspection or quote',Remodeling:'request a project consultation',HVAC:'call for urgent help or schedule maintenance',
+    Plumbing:'call about a repair',Electrical:'request a technician visit',Odontologia:'book an evaluation',
+    'Med spas':'book a treatment consultation',Advocacia:'request an initial consultation',
+    'House cleaning':'request a cleaning quote',Restaurantes:'place an order, reserve a table or plan a visit'
+  };
   const profile = name => profiles.find(p => p.name === name) || profiles[0];
   const criteria = () => {
     const common = draft.mode === 'full' ? basics : basics.filter(c => quick.includes(c.id));
@@ -173,7 +179,7 @@
     ].join('\n');
     const first = top[0];
     const message = first
-      ? `Hi [First Name],\n\nI reviewed ${draft.company}'s ${draft.device === 'mobile' ? 'mobile ' : ''}website and documented one specific friction point in the ${first.id.startsWith('n-') ? 'service-specific' : first.id.replace(/[^a-z]/g,' ')} experience.\n\nI can show you the exact step and one focused improvement worth testing, without making assumptions about your current sales.\n\nWould a 60-second walkthrough be useful?\n\n[Your Name]`
+      ? `Hi [First Name],\n\nI checked ${draft.company}'s website on ${draft.device === 'mobile' ? 'mobile' : 'desktop'} and noticed this specific issue:\n\n“${first.note.trim().replace(/\s+/g,' ').slice(0,240)}${first.note.trim().length > 240 ? '…' : ''}”\n\nThis may create friction for someone trying to ${englishGoals[draft.niche]}. I have a focused improvement in mind that we could test without assuming you need a complete rebuild.\n\nWould it help if I sent you a 60-second walkthrough showing the issue and the possible fix?\n\n[Your Name]`
       : '';
     return {headline,flagged,validated,gaps,good,unknown,offer,text,message};
   }
@@ -188,7 +194,8 @@
       ${httpUrl(draft.proofUrl) ? `<p class="ca-proof-link"><a href="${esc(httpUrl(draft.proofUrl))}" target="_blank" rel="noopener noreferrer">Abrir captura ou vídeo registrado</a></p>` : ''}
       ${validated.length ? `<div class="ca-findings">${validated.slice(0,3).map(f => `<article class="ca-finding"><span class="ca-eyebrow">${f.weight === 3 ? 'PRIORIDADE A INVESTIGAR' : 'OPORTUNIDADE A AVALIAR'}</span><h4>${esc(f.title)}</h4><p><strong>O que foi visto:</strong> ${esc(f.note)}</p><p><strong>Por que importa:</strong> ${esc(f.why)}</p><p><strong>Melhoria possível:</strong> ${esc(f.fix)}</p><p><strong>Como validar:</strong> ${esc(f.test)}</p></article>`).join('')}</div>` : `<div class="ca-neutral"><strong>Sem diagnóstico negativo forçado.</strong><p>Não há observação suficientemente descrita para sustentar uma oferta. Isso também é um resultado válido.</p></div>`}
       ${gaps.length ? `<p class="ca-pending">${gaps.length} problema(s) marcado(s) ainda sem descrição concreta. Abra o diagnóstico e complete a evidência antes de citar isso ao prospect.</p>` : ''}
-      <div class="ca-recommend"><span class="ca-eyebrow">PRÓXIMA DECISÃO</span><h4>${esc(offer.label)}</h4><p>${esc(offer.next)}</p><small>Recomendação preliminar, não prova de impacto nem orçamento fechado.</small></div>
+      <div class="ca-recommend"><span class="ca-eyebrow">PRÓXIMA DECISÃO</span><h4>${esc(offer.label)}</h4>${validated.length ? `<p><strong>Primeira melhoria a considerar:</strong> ${esc(validated[0].fix)}</p>` : ''}<p>${esc(offer.next)}</p><small>Recomendação preliminar, não prova de impacto nem orçamento fechado.</small></div>
+      ${report.message ? `<details class="ca-outreach"><summary>Ver abordagem personalizada para o prospect (inglês)</summary><p>O texto incorpora sua observação literalmente. Revise e traduza a frase citada se ela foi escrita em português, antes de enviar.</p><pre>${esc(report.message)}</pre></details>` : ''}
       <div class="ca-report-actions"><button class="bb-action" type="button" data-copy="report">Copiar relatório</button><button class="bb-action secondary" type="button" data-copy="message" ${!report.message ? 'disabled' : ''}>Copiar abordagem em inglês</button><button class="bb-action secondary" type="button" data-crm>Levar ao CRM</button><button class="ca-link" type="button" data-deepen>Aprofundar a análise</button></div>
       <p class="ca-feedback" id="ca-copy-feedback" aria-live="polite"></p>
     </section>`;

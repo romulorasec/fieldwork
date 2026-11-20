@@ -24,7 +24,7 @@
 .ca-proof input{width:100%;max-width:530px;min-height:43px;padding:9px 12px;background:#fff;color:#193a4a;border:1px solid #b9ced8;border-radius:9px;font-size:16px}
 .ca-proof small{display:block;color:#69818a;margin-top:5px}
 .ca-check-head{margin-top:26px;padding-top:22px;border-top:1px solid #deeaee}
-.ca-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:stretch}
+.ca-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
 .ca-criterion{margin:0;min-width:0;border:1px solid #dce8ec;border-radius:13px;background:#f8fbfc;padding:13px 15px 15px}
 .ca-criterion legend{float:left;width:100%;font-size:15px;color:#1c3a50;font-weight:800;padding:0;margin-bottom:5px}
 .ca-criterion p{clear:both;font-size:14px;color:#455e70;line-height:1.55;margin:0 0 12px}
@@ -64,6 +64,10 @@
 .ca-recommend{margin-top:16px;background:#e7f3f9}
 .ca-recommend h4{font-size:17px;color:#1a4d6c;margin:3px 0}
 .ca-recommend small{color:#506e80;font-size:12px}
+.ca-outreach{margin-top:12px;padding:12px 14px;border:1px solid #d9e7eb;border-radius:10px;background:#fff;color:#3c5d6b}
+.ca-outreach summary{cursor:pointer;color:#1b6c62;font-size:14px;font-weight:750}
+.ca-outreach p{font-size:12px;line-height:1.5;color:#647883}
+.ca-outreach pre{font-family:inherit;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6;font-size:13px;color:#284557}
 .ca-pending{padding:12px 14px;background:#fff7ea;border:1px solid #f0dfc1;color:#7c582e;border-radius:10px;font-size:13px;margin:12px 0}
 .ca-report-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:17px}
 .ca-report-actions button:disabled{opacity:.45;cursor:not-allowed}

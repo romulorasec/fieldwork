@@ -29,6 +29,6 @@ npm test
 python3 -m http.server 8877
 ```
 
-Na versão servida, abrir `http://localhost:8877/` e `http://localhost:8877/bluebook.html` em larguras de 360, 390, 768 e 1280 pixels. Para automação com navegador compatível e Playwright instalado, executar `npm run test:browser` enquanto o servidor estiver ativo.
+Na versão servida, abrir `http://localhost:8877/` e `http://localhost:8877/bluebook.html` em larguras de 360, 390, 768 e 1280 pixels. Para automação com navegador compatível, executar `npx playwright install chromium` uma vez e depois `npm run test:browser` enquanto o servidor estiver ativo. Em ambientes com Chromium do sistema, a variável `FIELDWORK_CHROMIUM_PATH` permite informar seu executável.
 
 Os testes cobrem diagnóstico rápido e completo, armazenamento, migração de registros anteriores, recomendação prudente quando faltam provas, evidências visuais opcionais e passagem ao CRM. Uma auditoria heurística não comprova aumento de vendas: isso exige métricas e validação com o cliente.

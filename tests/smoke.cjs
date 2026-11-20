@@ -5,7 +5,7 @@ const path = require('node:path');
 const os = require('node:os');
 
 (async () => {
-  const browser = await chromium.launch({headless:true,executablePath:'/usr/bin/chromium',args:['--no-sandbox']});
+  const browser = await chromium.launch({headless:true,executablePath:process.env.FIELDWORK_CHROMIUM_PATH || undefined,args:['--no-sandbox']});
   const issues = [];
   const page = await browser.newPage({viewport:{width:1366,height:900},deviceScaleFactor:1});
   page.on('pageerror',e => issues.push('pageerror: ' + e.message));
