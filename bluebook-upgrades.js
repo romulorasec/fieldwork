@@ -315,6 +315,6 @@
 })();
 // Carrega o laboratório progressivo após o conteúdo e as lições do Blue Book.
 (() => {
-  const style=document.createElement('link');style.rel='stylesheet';style.href='conversion-audit.css';document.head.append(style);
-  const script=document.createElement('script');script.src='conversion-audit.js';document.body.append(script);
+  const style=document.createElement('link');style.rel='stylesheet';style.href='conversion-audit.css?v=20261120-final';document.head.append(style);
+  const script=document.createElement('script');script.src='conversion-audit.js?v=20261120-final';document.body.append(script);
 })();
