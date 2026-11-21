@@ -2,54 +2,25 @@
 
 Supabase: projeto `xmvbzntawfmgnsuqhztw`. Site: `https://romulorasec.github.io/fieldwork/`.
 
-## Dois passos administrativos necessários
+## Estado atual e segurança
 
-As áreas privadas e a administração estão implementadas, mas o primeiro administrador ainda precisa ser ativado no Supabase. **Não existe endpoint público de bootstrap**, por segurança.
+O usuário `romulorasec@gmail.com` já existe e possui associação de administrador ativa no projeto. Não existe endpoint público de criação de administrador.
 
 ### 1. Desativar criação livre de contas
 
 No Supabase Dashboard, vá a **Authentication > Providers > Email** e desative **Allow new users to sign up**. A home e o workspace já não expõem cadastro público. Até essa mudança, a API Auth ainda pode aceitar um cadastro sem vínculo: isso não dá acesso às tabelas protegidas, mas produz contas órfãs.
 
-### 2. Criar a conta administradora e o workspace
+### 2. Entrar no workspace como administrador
 
-No Dashboard, em **Authentication > Users**, crie administrativamente o usuário `romulorasec@gmail.com`, com e-mail confirmado pelo administrador e senha temporária forte. A senha não deve ficar em código nem mensagens.
+Entre em `cloud.html` com `romulorasec@gmail.com` e a senha definida no Supabase Auth. **O aplicativo autenticador não é mais obrigatório** para acessar o workspace nem o painel de administração. O vínculo ativo como `admin` continua obrigatório e é verificado no servidor.
 
-No **SQL Editor**, confirme a conta:
-
-```sql
-select id, email from auth.users where lower(email) = 'romulorasec@gmail.com';
-```
-
-Se retornar exatamente uma conta, execute uma vez:
-
-```sql
-begin;
-do $$
-declare
-  admin_id uuid;
-  new_workspace_id uuid;
-begin
-  select id into strict admin_id
-  from auth.users where lower(email) = 'romulorasec@gmail.com';
-
-  if exists (select 1 from public.memberships where user_id=admin_id and role='admin') then
-    raise exception 'Conta já possui vínculo administrativo. Verifique antes de repetir.';
-  end if;
-
-  insert into public.workspaces(name) values ('Fieldwork') returning id into new_workspace_id;
-  insert into public.memberships(workspace_id,user_id,role,status)
-    values (new_workspace_id,admin_id,'admin','active');
-end $$;
-commit;
-```
-
-No primeiro acesso a `cloud.html`, cadastre um autenticador TOTP para entrar no painel Admin. Os usuários criados depois recebem um link de uso único para definir senha; não há verificação automática de e-mail.
+Como o segundo fator deixou de ser exigido, use uma senha longa, exclusiva e armazenada em um gerenciador de senhas. Os usuários criados pelo administrador recebem um link de uso único para definir a própria senha; não há verificação automática de e-mail.
 
 ## Checagem antes de dados reais
 
 - Sem login, `index.html` abre, `bluebook.html` leva ao login; `member_lessons` e `plan_days` não retornam linhas a `anon`.
 - Login sem `membership` ativa não habilita conteúdo.
-- Admin sem MFA AAL2 não acessa `admin-users`.
+- Apenas contas com vínculo ativo de `admin` acessam `admin-users`, mesmo sem segundo fator.
 - Admin visualiza pedidos, prepara e confirma criação, copia link temporário e gerencia funções.
 - `learner` acessa biblioteca, plano e próprias auditorias, mas não cria contas nem vê CRM alheio.
 - `sales` cria próprios prospects e propostas. Parceiro só vê oportunidades atribuídas.

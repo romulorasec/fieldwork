@@ -35,16 +35,19 @@ test('a biblioteca não inclui lições no HTML ou JavaScript público',()=>{
 
 test('o fluxo do workspace inclui plano, proposta, biblioteca e papéis separados',()=>{
   const source=read('cloud.ts');
+  assert.doesNotMatch(source,/showMFA|\.auth\.mfa\./);
   assert.match(source,/renderPlan\(renderShell\)/);
   assert.match(source,/renderOffers\(\)/);
   assert.match(source,/\['admin','Administração'\]/);
   assert.match(source,/Biblioteca completa/);
   assert.match(read('cloud-admin.ts'),/data-request-use/);
   const backend=read('supabase/functions/admin-users/index.ts');
-  assert.match(backend,/claims\?\.aal !== 'aal2'/);
+  assert.doesNotMatch(backend,/claims\?\.aal !== 'aal2'/);
   assert.match(backend,/body\.action === 'create'/);
   assert.match(backend,/request_id/);
   assert.match(read('supabase/migrations/202611210001_private_library_and_access_requests.sql'),/lesson_member_read/);
+  assert.match(read('supabase/migrations/202611210006_optional_mfa_for_admin.sql'),/private\.is_admin\(\)/);
+  assert.doesNotMatch(read('bluebook-private.ts'),/getAuthenticatorAssuranceLevel/);
 });
 
 test('home, biblioteca e workspace têm regras para telas pequenas',()=>{

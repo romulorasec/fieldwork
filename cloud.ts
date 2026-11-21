@@ -1,5 +1,5 @@
 import {client,root,$,state,esc,roles,loadRecords,canSell,canAudit,isAdmin,notice} from './cloud-core';
-import {showLogin,showMFA,signOut} from './cloud-auth';
+import {showLogin,signOut} from './cloud-auth';
 import {renderProspects} from './cloud-prospects';
 import {renderAudits} from './cloud-audits';
 import {renderAdmin} from './cloud-admin';
@@ -25,10 +25,6 @@ async function boot(){
   const member=data?.[0];
   if(error||!member){root.innerHTML='<main class="cloud-loading"><h2>Conta sem acesso liberado</h2><p>O administrador precisa vincular esta conta a um espaço de trabalho ativo.</p><button class="cloud-button" id="exit">Sair</button></main>';$('#exit')?.addEventListener('click',signOut);return;}
   state.member=member;
-  if(isAdmin()){
-    const {data:aal}=await client.auth.mfa.getAuthenticatorAssuranceLevel();
-    if(aal?.currentLevel!=='aal2'){await showMFA(boot,signOut);return;}
-  }
   const wanted=new URLSearchParams(location.search).get('return');
   if(wanted&&/^bluebook\.html(#[a-z0-9-]{1,90})?$/.test(wanted)){location.replace(wanted);return;}
   const incoming=location.hash.slice(1);

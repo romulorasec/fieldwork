@@ -17,10 +17,6 @@ async function boot(){
   const {data:{user}}=await client.auth.getUser();if(!user){requireLogin();return;}
   const {data:members,error:memberError}=await client.from('memberships').select('role,status').eq('user_id',user.id).eq('status','active').limit(1);
   if(memberError||!members?.length){root.innerHTML='<main class="library-loading"><h1>Acesso não liberado</h1><p>O administrador precisa habilitar sua conta.</p><a href="cloud.html">Voltar ao login</a></main>';return;}
-  if(members[0].role==='admin'){
-    const {data:aal}=await client.auth.mfa.getAuthenticatorAssuranceLevel();
-    if(aal?.currentLevel!=='aal2'){requireLogin();return;}
-  }
   userId=user.id;
   const [{data,error},{data:rows,error:progressError}]=await Promise.all([
     client.from('member_lessons').select('lesson_key,module_key,module_title,title,section_order,content').eq('published',true).limit(150),

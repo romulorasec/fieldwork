@@ -29,8 +29,8 @@ Deno.serve(async req => {
   ]);
   const actor = userData.user;
   if (userError || claimError || !actor || claimData.claims?.sub !== actor.id) return reply({error:'Sessão inválida.'},401);
-  if (claimData.claims?.aal !== 'aal2') return reply({error:'Administração exige autenticação em dois fatores.'},403);
-
+  // Password sign-in is sufficient. Only an active administrator membership
+  // grants access to user provisioning; the client never gets this key.
   const {data:membership,error:membershipError} = await adminDb.from('memberships')
     .select('workspace_id,role,status').eq('user_id',actor.id).eq('role','admin').eq('status','active').limit(1).maybeSingle();
   if (membershipError || !membership) return reply({error:'Acesso exclusivo do administrador.'},403);
