@@ -4,6 +4,8 @@ import {renderProspects} from './cloud-prospects';
 import {renderAudits} from './cloud-audits';
 import {renderAdmin} from './cloud-admin';
 import {renderTasks} from './cloud-tasks';
+import {renderPlan} from './cloud-plan';
+import {renderOffers} from './cloud-offers';
 
 async function boot(){
   // Verify the one-time recovery token before entering the ordinary login flow.
@@ -27,6 +29,10 @@ async function boot(){
     const {data:aal}=await client.auth.mfa.getAuthenticatorAssuranceLevel();
     if(aal?.currentLevel!=='aal2'){await showMFA(boot,signOut);return;}
   }
+  const wanted=new URLSearchParams(location.search).get('return');
+  if(wanted&&/^bluebook\.html(#[a-z0-9-]{1,90})?$/.test(wanted)){location.replace(wanted);return;}
+  const incoming=location.hash.slice(1);
+  if(['today','tasks','plan','prospects','audits','offers','learning','admin'].includes(incoming))state.view=incoming;
   await loadRecords();renderShell();
 }
 function showSetupError(){root.innerHTML='<main class="cloud-loading"><h2>Link inválido ou expirado</h2><p>Peça um novo link ao administrador. Nunca compartilhe o link com outras pessoas.</p><a href="cloud.html">Voltar ao login</a></main>';}
@@ -34,15 +40,17 @@ function showSetupError(){root.innerHTML='<main class="cloud-loading"><h2>Link i
 function renderShell(){
   const role=state.member.role;
   const access={prospects:['admin','sales','partner'].includes(role),audits:canAudit(),admin:isAdmin()};
-  if(state.view==='prospects'&&!access.prospects || ['audits','tasks'].includes(state.view)&&!access.audits || state.view==='admin'&&!access.admin)state.view='today';
-  const navigation=[['today','Hoje'],...(access.audits?[['tasks','Próximas ações']]:[]),...(access.prospects?[['prospects','Prospects e CRM']]:[]),...(access.audits?[['audits','Auditorias']]:[]),['learning','Blue Book e prática'],...(access.admin?[['admin','Administração']]:[])];
-  root.innerHTML=`<div class="cloud-shell"><aside class="cloud-side"><h1>Fieldwork</h1><small>WORKSPACE / CONVERSÃO</small><div class="role">${esc(state.user.email)}<br><strong>${esc(roles[role]||role)}</strong></div><nav aria-label="Área de trabalho">${navigation.map(([key,name])=>`<button data-view="${key}" ${state.view===key?'aria-current="page"':''}>${esc(name)}</button>`).join('')}<a href="bluebook.html">Biblioteca pública</a></nav><button class="logout" id="logout">Sair</button></aside><main class="cloud-main"><header class="cloud-top"><strong>${esc((state.member.workspaces as {name?:string}|null)?.name||'Fieldwork')}</strong><span>Uma ação com propósito, depois a próxima.</span></header><div id="cloud-content"></div><p class="cloud-foot">A análise identifica hipóteses e fatos observados; somente dados medidos demonstram impacto comercial.</p></main></div>`;
-  root.querySelectorAll<HTMLButtonElement>('[data-view]').forEach(button=>button.addEventListener('click',()=>{state.view=button.dataset.view||'today';renderShell();}));
+  if(state.view==='prospects'&&!access.prospects || ['audits','tasks'].includes(state.view)&&!access.audits || state.view==='offers'&&!canSell() || state.view==='admin'&&!access.admin)state.view='today';
+  const navigation=[['today','Hoje'],['plan','Plano de 30 dias'],...(access.audits?[['tasks','Próximas ações']]:[]),...(access.prospects?[['prospects','Prospects e CRM']]:[]),...(access.audits?[['audits','Auditorias']]:[]),...(canSell()?[['offers','Propostas e ofertas']]:[]),['learning','Blue Book e prática'],...(access.admin?[['admin','Administração']]:[])];
+  root.innerHTML=`<div class="cloud-shell"><aside class="cloud-side"><h1>Fieldwork</h1><small>WORKSPACE / CONVERSÃO</small><div class="role">${esc(state.user.email)}<br><strong>${esc(roles[role]||role)}</strong></div><nav aria-label="Área de trabalho">${navigation.map(([key,name])=>`<button data-view="${key}" ${state.view===key?'aria-current="page"':''}>${esc(name)}</button>`).join('')}<a href="bluebook.html">Biblioteca completa</a></nav><button class="logout" id="logout">Sair</button></aside><main class="cloud-main"><header class="cloud-top"><strong>${esc((state.member.workspaces as {name?:string}|null)?.name||'Fieldwork')}</strong><span>Uma ação com propósito, depois a próxima.</span></header><div id="cloud-content"></div><p class="cloud-foot">A análise identifica hipóteses e fatos observados; somente dados medidos demonstram impacto comercial.</p></main></div>`;
+  root.querySelectorAll<HTMLButtonElement>('[data-view]').forEach(button=>button.addEventListener('click',()=>{state.view=button.dataset.view||'today';history.replaceState(null,'','cloud.html#'+state.view);renderShell();}));
   $('#logout')?.addEventListener('click',signOut);
   if(state.view==='today')renderToday();
   if(state.view==='tasks')renderTasks(renderShell);
+  if(state.view==='plan')void renderPlan(renderShell);
   if(state.view==='prospects')renderProspects(renderShell);
   if(state.view==='audits')renderAudits(renderShell);
+  if(state.view==='offers')void renderOffers();
   if(state.view==='learning')renderLearning();
   if(state.view==='admin')void renderAdmin();
 }
@@ -53,7 +61,7 @@ function renderToday(){
   const title=pending?.title||(lead?`Continue com ${lead.name}`:(canAudit()?'Documente uma oportunidade real':'Aprenda uma técnica útil'));
   const action=pending?.why||lead?.next_action||(canAudit()?'Abra uma empresa e tente realizar a principal ação que o visitante procura.':'Escolha uma lição ligada ao seu próximo trabalho.');
   const why=lead?'Uma conversa comercial só avança quando a próxima decisão fica clara.':canAudit()?'Uma observação reproduzível permite propor uma correção específica.':'Aprender com aplicação e feedback é mais útil que apenas acumular leituras.';
-  $('#cloud-content')!.innerHTML=`<div class="cloud-pagehead"><h2>Seu próximo cliente começa com uma boa observação.</h2><p>O objetivo é reduzir trabalho desnecessário e tornar a próxima decisão mais clara.</p></div><div class="cloud-kpis"><div class="cloud-card cloud-kpi"><span>Prospects</span><strong>${state.prospects.length}</strong></div><div class="cloud-card cloud-kpi"><span>Auditorias</span><strong>${state.audits.length}</strong></div><div class="cloud-card cloud-kpi"><span>Contratos registrados</span><strong>${state.prospects.filter(x=>x.stage==='Contrato'&&x.deposit_confirmed).length}</strong></div></div><div class="cloud-grid"><section class="cloud-card"><span class="cloud-status">PRÓXIMA AÇÃO</span><h3 style="margin-top:12px">${esc(title)}</h3><p>${esc(action)}</p><div class="cloud-why"><strong>Por que esta ação?</strong><p>${esc(why)}</p></div><div class="cloud-actions" style="margin-top:16px"><button class="cloud-button" id="do-next">${lead?'Abrir CRM':canAudit()?'Começar diagnóstico':'Abrir lições'}</button></div></section><section class="cloud-card"><h3>Se travar, faça menos, mas avance.</h3><p><strong>Não sabe como?</strong> Abra o procedimento no Blue Book, com um exemplo.</p><p><strong>Não encontrou um problema?</strong> Registre que a etapa funcionou. Isso também é evidência.</p><p><strong>Uma tentativa falhou?</strong> Anote o comportamento e escolha uma mudança para testar.</p><a class="cloud-link" href="bluebook.html#guia-de-conversao">Ver guia de conversão</a></section></div><div class="cloud-card" style="margin-top:16px"><h3>Dados de uma versão anterior?</h3><p>O projeto anterior armazenava registros no navegador. Você pode copiar uma versão deles para sua conta sem apagar o original.</p><button class="cloud-button secondary" id="import-legacy">Importar meus registros locais</button><p id="cloud-feedback" aria-live="polite"></p></div>`;
+  $('#cloud-content')!.innerHTML=`<div class="cloud-pagehead"><h2>Seu próximo cliente começa com uma boa observação.</h2><p>O objetivo é reduzir trabalho desnecessário e tornar a próxima decisão mais clara.</p></div><div class="cloud-kpis"><div class="cloud-card cloud-kpi"><span>Prospects</span><strong>${state.prospects.length}</strong></div><div class="cloud-card cloud-kpi"><span>Auditorias</span><strong>${state.audits.length}</strong></div><div class="cloud-card cloud-kpi"><span>Contratos registrados</span><strong>${state.prospects.filter(x=>x.stage==='Contrato'&&x.deposit_confirmed).length}</strong></div></div><div class="cloud-grid"><section class="cloud-card"><span class="cloud-status">PRÓXIMA AÇÃO</span><h3 style="margin-top:12px">${esc(title)}</h3><p>${esc(action)}</p><div class="cloud-why"><strong>Por que esta ação?</strong><p>${esc(why)}</p></div><div class="cloud-actions" style="margin-top:16px"><button class="cloud-button" id="do-next">${lead?'Abrir CRM':canAudit()?'Começar diagnóstico':'Abrir lições'}</button></div></section><section class="cloud-card"><h3>Se travar, faça menos, mas avance.</h3><p><strong>Não sabe como?</strong> Abra o procedimento no Blue Book, com um exemplo.</p><p><strong>Não encontrou um problema?</strong> Registre que a etapa funcionou. Isso também é evidência.</p><p><strong>Uma tentativa falhou?</strong> Anote o comportamento e escolha uma mudança para testar.</p><a class="cloud-link" href="bluebook.html#diagnostico-e-auditoria-1">Ver guia de conversão</a></section></div><details class="cloud-card" style="margin-top:16px"><summary><strong>Você usava a versão antiga?</strong> Importar dados locais</summary><p>O projeto anterior armazenava registros no navegador. Você pode copiar uma versão deles para sua conta sem apagar o original.</p><button class="cloud-button secondary" id="import-legacy">Importar meus registros locais</button><p id="cloud-feedback" aria-live="polite"></p></details>`;
   if(pending){const button=$('#do-next');if(button)button.textContent='Abrir esta ação';}
   $('#do-next')?.addEventListener('click',()=>{state.view=pending?'tasks':lead?'prospects':canAudit()?'audits':'learning';renderShell();});
   $('#import-legacy')?.addEventListener('click',importLegacy);

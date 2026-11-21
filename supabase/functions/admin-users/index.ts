@@ -49,8 +49,11 @@ Deno.serve(async req => {
       if (error) return reply({error:'Falha ao listar membros.'},500);
       const {data:users,error:authError} = await adminDb.auth.admin.listUsers({page:1,perPage:1000});
       if (authError) return reply({error:'Falha ao listar contas.'},500);
+      const {data:requests,error:requestError}=await adminDb.from('access_requests')
+        .select('id,full_name,email,intent,status,created_at').eq('status','new').order('created_at',{ascending:false}).limit(100);
+      if(requestError)return reply({error:'Falha ao consultar solicitações.'},500);
       const mail = new Map(users.users.map(u=>[u.id,u.email||'']));
-      return reply({members:(members||[]).map(m=>({id:m.user_id,email:mail.get(m.user_id)||'',name:(m.profiles as {full_name?:string}|null)?.full_name||'',role:m.role,status:m.status}))});
+      return reply({members:(members||[]).map(m=>({id:m.user_id,email:mail.get(m.user_id)||'',name:(m.profiles as {full_name?:string}|null)?.full_name||'',role:m.role,status:m.status})),requests:requests||[]});
     }
 
     const body = await req.json();
@@ -59,6 +62,11 @@ Deno.serve(async req => {
       const name=String(body.name||'').trim();
       const role=String(body.role||'learner');
       if (!/^\S+@\S+\.\S+$/.test(email) || name.length<2 || name.length>120 || !roles.has(role)) return reply({error:'Confira nome, e-mail e função.'},400);
+      const requestId=String(body.request_id||'');
+      if(requestId){
+        const {data:pending}=await adminDb.from('access_requests').select('email,status').eq('id',requestId).maybeSingle();
+        if(!pending||pending.status!=='new'||pending.email.toLowerCase()!==email)return reply({error:'Solicitação não encontrada ou não corresponde ao e-mail.'},400);
+      }
       // No user, contributor, partner or admin UI can create another administrator.
       const {data:created,error:createError}=await adminDb.auth.admin.createUser({email,email_confirm:true,user_metadata:{full_name:name}});
       if (createError || !created.user) return reply({error:'Não foi possível criar a conta. Confira se o e-mail já existe.'},409);
@@ -68,7 +76,17 @@ Deno.serve(async req => {
       const {data:link,error:linkError}=await adminDb.auth.admin.generateLink({type:'recovery',email});
       await log('create_user',userId,{role});
       if (linkError || !link?.properties?.hashed_token) return reply({error:'Conta criada. Gere um link de configuração pelo botão de recuperação.'},500);
+      if(requestId)await adminDb.from('access_requests').update({status:'invited',updated_at:new Date().toISOString()}).eq('id',requestId).eq('status','new');
       return reply({ok:true,id:userId,setup_link:setupLink(link.properties.hashed_token)},201);
+    }
+
+    if(req.method==='PATCH'&&body.action==='request'){
+      const id=String(body.id||''),status=String(body.status||'');
+      if(!['declined','invited'].includes(status))return reply({error:'Estado não permitido.'},400);
+      const {data,error}=await adminDb.from('access_requests').update({status,updated_at:new Date().toISOString()}).eq('id',id).eq('status','new').select('id').maybeSingle();
+      if(error||!data)return reply({error:'Solicitação indisponível.'},404);
+      await log('review_access_request',id,{status});
+      return reply({ok:true});
     }
 
     if (req.method === 'POST' && body.action === 'setup-link') {

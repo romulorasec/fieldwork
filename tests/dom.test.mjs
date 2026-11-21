@@ -1,100 +1,56 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
+import {readFileSync,existsSync} from 'node:fs';
+import {fileURLToPath} from 'node:url';
+import {resolve,dirname} from 'node:path';
 import {Window} from 'happy-dom';
 
-const script = readFileSync(new URL('../conversion-audit.js',import.meta.url),'utf8');
-const setup = (legacy = []) => {
-  const win = new Window({url:'https://romulorasec.github.io/fieldwork/bluebook.html',settings:{enableJavaScriptEvaluation:true,suppressInsecureJavaScriptEnvironmentWarning:true}});
-  win.document.body.innerHTML='<section id="primeira-missao"><div id="audit-workbench"></div></section><section id="olho-de-aguia"></section><nav id="bluebook-nav"></nav>';
-  const errors=[];
-  win.addEventListener('error',e=>errors.push(e.message));
-  win.localStorage.setItem('fieldwork-audits-v2',JSON.stringify(legacy));
-  win.eval(script);
-  const $ = selector => win.document.querySelector(selector);
-  const $$ = selector => [...win.document.querySelectorAll(selector)];
-  const change = (element,value,type='input') => {
-    element.value = value;
-    element.dispatchEvent(new win.Event(type,{bubbles:true}));
-  };
-  const flag = (id,status,note='') => {
-    const radio = $(`[data-check="${id}"] input[value="${status}"]`);
-    radio.checked=true;radio.dispatchEvent(new win.Event('input',{bubbles:true}));radio.dispatchEvent(new win.Event('change',{bubbles:true}));
-    if(status === 'problem') change($(`[data-note="${id}"]`),note);
-  };
-  const submit = () => $('#ca-form').dispatchEvent(new win.Event('submit',{bubbles:true,cancelable:true}));
-  return {win,$,$$,change,flag,submit,errors};
-};
+const directory=resolve(dirname(fileURLToPath(import.meta.url)),'..');
+const read=name=>readFileSync(resolve(directory,name),'utf8');
 
-test('diagnóstico rápido e aprofundamento preservam respostas', () => {
-  const {win,$,$$,change,flag,submit,errors} = setup();
-  assert.equal($$('.ca-criterion').length,6);
-  assert.equal($$('.ca-niche-grid article').length,10);
-  assert.equal($$('.ca-lessons details').length,12);
-  change($('[name="company"]'),'Acme Roofing');
-  change($('[name="url"]'),'https://example.com/roofing');
-  flag('cta','problem','O botão de orçamento abre uma página inexistente no celular.');
-  flag('trust','good');
-  submit();
-  const saved=JSON.parse(win.localStorage.getItem('fieldwork-audits-v2'));
-  assert.equal(saved.length,1);
-  assert.equal(saved[0].version,3);
-  assert.equal(saved[0].recommendation,'Auditoria/correção');
-  assert.match($('#ca-result').textContent,/botão de orçamento/);
-  assert.match($('#ca-result').textContent,/PRÓXIMA DECISÃO/);
-  assert.match($('.ca-recommend').textContent,/Primeira melhoria a considerar/);
-  assert.match($('.ca-outreach').textContent,/O botão de orçamento abre uma página inexistente/);
-  $('[data-deepen]').click();
-  assert.equal($$('.ca-criterion').length,14);
-  assert.equal($('[data-note="cta"]').value,'O botão de orçamento abre uma página inexistente no celular.');
-  assert.deepEqual(errors,[]);
-  win.happyDOM.abort();
+test('a home contém somente apresentação, convite e login',()=>{
+  const w=new Window({url:'https://romulorasec.github.io/fieldwork/index.html'});
+  w.document.write(read('index.html'));
+  assert.match(w.document.querySelector('h1')?.textContent||'',/Encontre a oportunidade/);
+  assert.ok(w.document.querySelector('a[href="cloud.html"]'));
+  assert.ok(w.document.querySelector('#request-form'));
+  assert.equal(w.document.querySelectorAll('form[action="signup"],#audit-form,#ca-form,#cloud-root,#library-root').length,0);
+  assert.equal(w.document.querySelectorAll('script[src*="conversion-audit"],script[src*="bluebook-upgrades"]').length,0);
+  assert.match(w.document.querySelector('#request-form')?.textContent||'',/Isso não cria uma conta automaticamente/);
+  w.happyDOM.abort();
 });
 
-test('sem evidências, não recomenda venda de redesign e não inventa perda', () => {
-  const {win,$,change,flag,submit,errors} = setup();
-  change($('[name="company"]'),'Great House Cleaners');
-  change($('[name="url"]'),'https://example.com/cleaning');
-  change($('[name="niche"]'),'House cleaning','change');
-  flag('cta','good');
-  flag('clarity','problem','');
-  submit();
-  assert.match($('#ca-result').textContent,/Sem diagnóstico negativo forçado/);
-  assert.match($('#ca-result').textContent,/Não recomendar intervenção ainda/);
-  const saved=JSON.parse(win.localStorage.getItem('fieldwork-audits-v2'));
-  assert.equal(saved[0].recommendation,'');
-  assert.equal(saved[0].state,'good');
-  assert.deepEqual(errors,[]);
-  win.happyDOM.abort();
+test('a biblioteca não inclui lições no HTML ou JavaScript público',()=>{
+  const html=read('bluebook.html');
+  assert.match(html,/<div id="library-root"/);
+  assert.match(html,/bluebook\.bundle\.js/);
+  assert.doesNotMatch(html,/<details class="lesson"|O OLHO DE ÁGUIA|taskSet\(/);
+  const source=read('bluebook-private.ts');
+  assert.match(source,/client\.auth\.getUser\(\)/);
+  assert.match(source,/\.from\('member_lessons'\)/);
+  assert.match(source,/\.from\('memberships'\)/);
+  assert.match(source,/requireLogin\(\)/);
+  for(const obsolete of ['bluebook-upgrades.js','conversion-audit.js','index-enhance.js'])assert.equal(existsSync(resolve(directory,obsolete)),false);
 });
 
-test('histórico legado permanece legível; por nicho há perguntas próprias', () => {
-  const previous=[{company:'Old Business',niche:'Plumbing',url:'https://example.org',observation:'Número não clicável',created:'2026-11-19T10:00:00Z'}];
-  const {win,$,$$,errors} = setup(previous);
-  assert.equal($$('.ca-history li').length,1);
-  assert.equal($$('.ca-niche-grid article').length,10);
-  $('[data-select-niche="Restaurantes"]').click();
-  assert.equal($('[name="niche"]').value,'Restaurantes');
-  assert.match($('.ca-goal').textContent,/Fazer pedido/);
-  assert.match($('.ca-checks').textContent,/Cardápio utilizável/);
-  assert.deepEqual(errors,[]);
-  win.happyDOM.abort();
+test('o fluxo do workspace inclui plano, proposta, biblioteca e papéis separados',()=>{
+  const source=read('cloud.ts');
+  assert.match(source,/renderPlan\(renderShell\)/);
+  assert.match(source,/renderOffers\(\)/);
+  assert.match(source,/\['admin','Administração'\]/);
+  assert.match(source,/Biblioteca completa/);
+  assert.match(read('cloud-admin.ts'),/data-request-use/);
+  const backend=read('supabase/functions/admin-users/index.ts');
+  assert.match(backend,/claims\?\.aal !== 'aal2'/);
+  assert.match(backend,/body\.action === 'create'/);
+  assert.match(backend,/request_id/);
+  assert.match(read('supabase/migrations/202611210001_private_library_and_access_requests.sql'),/lesson_member_read/);
 });
 
-test('a evidência visual é opcional e a passagem ao CRM usa o registro escolhido', () => {
-  const {win,$,change,flag,submit,errors}=setup();
-  change($('[name="company"]'),'Quick Fix Plumbing');
-  change($('[name="url"]'),'https://example.com/plumbing');
-  change($('[name="proofUrl"]'),'https://example.com/screenshot.png');
-  change($('[name="niche"]'),'Plumbing','change');
-  flag('n-plumb-call','problem','O telefone na página aparece em texto e não permite ligar por toque.');
-  submit();
-  const record=JSON.parse(win.localStorage.getItem('fieldwork-audits-v2'))[0];
-  assert.equal(record.proofUrl,'https://example.com/screenshot.png');
-  assert.match($('#ca-result').textContent,/Abrir captura ou vídeo registrado/);
-  assert.equal($('.ca-proof-link a').getAttribute('href'),'https://example.com/screenshot.png');
-  $('[data-crm]').click();
-  assert.equal(win.sessionStorage.getItem('fieldwork-selected-audit'),record.id);
-  assert.deepEqual(errors,[]);
-  win.happyDOM.abort();
+test('home, biblioteca e workspace têm regras para telas pequenas',()=>{
+  for(const file of ['home.css','bluebook-private.css','cloud.css']){
+    assert.match(read(file),/@media\s*\(/,`${file} precisa de media query`);
+  }
+  assert.ok(existsSync(resolve(directory,'bluebook.bundle.js')));
+  assert.ok(existsSync(resolve(directory,'cloud.bundle.js')));
 });

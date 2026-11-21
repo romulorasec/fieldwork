@@ -3,7 +3,9 @@
   "private": true,
   "description": "Projeto estático; dependências usadas apenas para testes locais.",
   "scripts": {
+    "build": "npm run build:cloud && npm run build:bluebook",
     "build:cloud": "esbuild cloud.ts --bundle --format=esm --target=es2022 --minify --outfile=cloud.bundle.js",
+    "build:bluebook": "esbuild bluebook-private.ts --bundle --format=esm --target=es2022 --minify --outfile=bluebook.bundle.js",
     "test": "node --test tests/dom.test.mjs",
     "test:browser": "node tests/smoke.cjs"
   },
