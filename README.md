@@ -6,7 +6,7 @@ O Fieldwork transforma observações verificáveis sobre sites de negócios loca
 
 1. **`index.html` (pública):** apresentação curta, exemplo ilustrativo, botão de login e formulário de solicitação de convite. Não oferece diagnóstico, lições ou CRM.
 2. **`cloud.html` (login e workspace):** autenticação Supabase por e-mail e senha, verificação de vínculo ativo e navegação por permissão. Não exige aplicativo autenticador.
-3. **Workspace autenticado:** Hoje, plano de 30 dias, auditorias por nicho, CRM, tarefas, propostas e prática guiada, conforme função do usuário.
+3. **Workspace autenticado:** Começar / Continuar abre a próxima missão do plano de 30 dias, com procedimento, motivo, exemplo, entrega verificável, ajuda para destravar e detalhes técnicos opcionais. Cada conclusão salva uma anotação curta. Mapa dos 30 dias, auditorias, CRM, tarefas e propostas ficam disponíveis conforme a função.
 4. **`bluebook.html` (biblioteca privada):** exige sessão e vínculo ativo, consulta 59 tópicos na tabela protegida `member_lessons`. O HTML e seu bundle não contêm o texto completo; apenas a API Supabase fornece os dados após RLS.
 5. **`admin-users` (Edge Function):** somente administradores autenticados com vínculo ativo podem ver pedidos, criar usuários, gerar links temporários de senha, atribuir funções e suspender contas.
 
@@ -23,6 +23,8 @@ Um pedido feito na home não registra uma conta nem envia e-mail automático. O 
 - `ADMIN_SETUP.md`: ativação inicial e checklist de segurança.
 
 As 59 lições e os 30 dias do plano já estão no Supabase. Testes SQL com papel `anon` confirmaram zero resultados de `member_lessons` e `plan_days`, apesar de ambas conterem dados.
+
+As 140 ações do plano correspondem a 40 modelos de instruções específicas em `plan-guides.ts`. Cada modelo liga a ação à aula exata do Blue Book, sem obrigar o novato a estudar todas as lições primeiro. O CRM registra origem e data de retorno, e diferencia contratos marcados de entradas recebidas. Diagnósticos por nicho não reutilizam respostas de outro nicho e exibem o relatório após salvar.
 
 **Importante:** RLS é o controle real do conteúdo. Redirecionamentos no navegador não substituem segurança no banco. O histórico de um repositório público pode continuar revelando código de versões antigas; nunca coloque segredos ou dados sensíveis no Git.
 

@@ -38,18 +38,26 @@ export async function renderAudits(redraw:()=>void){
   const keep:Record<string,{status:string,note:string,level:string}>={};
   const draw=()=>{const d=new FormData(f),niche=String(d.get('niche')||'Roofing'),mode=String(d.get('mode')||'quick');const checks=[...common.filter(c=>mode==='full'||quick.has(c[0])),...nicheChecks[niche].map((title,i)=>['n-'+i,nicheDetails[niche]?.[i]?.title||title,nicheDetails[niche]?.[i]?.question||'Este aspecto ajuda o cliente a cumprir sua tarefa?',nicheDetails[niche]?.[i]?.fix||'Melhorar clareza e funcionamento desta etapa.'])];area.innerHTML=checks.map(([id,title,question])=>`<fieldset class="cloud-fieldset"><legend>${esc(title)}</legend><p>${esc(question)}</p><div class="choices">${[['problem','Problema'],['good','Adequado'],['unknown','Não verificado']].map(([value,label])=>`<label><input type="radio" name="status-${id}" value="${value}" ${value===(keep[id]?.status||'unknown')?'checked':''}>${label}</label>`).join('')}</div><label style="margin-top:8px">Fato observado<textarea name="note-${id}" rows="2" placeholder="Ex.: o botão não abre a página de contato">${esc(keep[id]?.note||'')}</textarea></label><label>Nível da evidência<select name="level-${id}">${levels.map(([v,label])=>`<option value="${v}" ${v===(keep[id]?.level||'hypothesis')?'selected':''}>${label}</option>`).join('')}</select></label></fieldset>`).join('');};
   const preserve=()=>{const d=new FormData(f);for(const [name,value] of d){const match=/^(status|note|level)-(.+)$/.exec(name);if(match){keep[match[2]]||={status:'unknown',note:'',level:'hypothesis'};(keep[match[2]] as any)[match[1]]=String(value);}}};
-  draw();f.querySelectorAll<HTMLSelectElement>('select[name=niche],select[name=mode]').forEach(s=>s.addEventListener('change',()=>{preserve();draw();}));
+  let previousNiche=String(new FormData(f).get('niche')||'');
+  draw();
+  f.querySelector<HTMLSelectElement>('select[name=niche]')?.addEventListener('change',()=>{
+    preserve();const currentNiche=String(new FormData(f).get('niche')||'');
+    if(currentNiche!==previousNiche){delete keep['n-0'];delete keep['n-1'];previousNiche=currentNiche;}
+    draw();
+  });
+  f.querySelector<HTMLSelectElement>('select[name=mode]')?.addEventListener('change',()=>{preserve();draw();});
   f.addEventListener('submit',async e=>{
     e.preventDefault();preserve();const d=new FormData(f);const company=String(d.get('company')||'').trim(),website=safeUrl(String(d.get('website')||'')),niche=String(d.get('niche')||''),mode=String(d.get('mode')||'quick'),device=String(d.get('device')||'mobile');
     if(!website){notice('Insira uma URL HTTP ou HTTPS válida.',true);return;}
-    const flagged=Object.entries(keep).filter(([,a])=>a.status==='problem');
+    const visibleKeys=new Set([...common.filter(c=>mode==='full'||quick.has(c[0])).map(c=>c[0]),'n-0','n-1']);
+    const flagged=Object.entries(keep).filter(([id,a])=>visibleKeys.has(id)&&a.status==='problem');
     const supported=flagged.filter(([,a])=>a.note.trim().length>=12).sort((a,b)=>levels.findIndex(l=>l[0]===b[1].level)-levels.findIndex(l=>l[0]===a[1].level));
-    const positive=Object.entries(keep).filter(([,a])=>a.status==='good').map(([id])=>criterionTitle(niche,id));
+    const positive=Object.entries(keep).filter(([id,a])=>visibleKeys.has(id)&&a.status==='good').map(([id])=>criterionTitle(niche,id));
     const first=supported[0];
     const observation=first?.[1].note.trim()||'';
     const fix=first?criterionFix(niche,first[0]):'Verificar esta etapa e testar a menor correção possível.';
     const next=observation?'Mostrar o achado, verificar prioridade com o proprietário e propor uma correção testável.':'Verificar a jornada antes de sugerir qualquer intervenção.';
-    const answers=Object.fromEntries(Object.entries(keep).map(([id,a])=>[id,{status:a.status,note:a.note,level:a.level}]));
+    const answers=Object.fromEntries(Object.entries(keep).filter(([id])=>visibleKeys.has(id)).map(([id,a])=>[id,{status:a.status,note:a.note,level:a.level}]));
     const {data:audit,error}=await client.from('audits').insert({workspace_id:state.member.workspace_id,owner_id:state.user.id,company,website,niche,device,mode,answers,observation,recommendation:observation?'Auditoria/correção':'',next_action:next,state:observation?'friction':'unknown'}).select('id').single();
     if(error||!audit){notice('Não foi possível salvar o diagnóstico: '+(error?.message||''),true);return;}
     if(supported.length){const findings=supported.map(([id,answer])=>({audit_id:audit.id,criterion_id:id,observation:answer.note.trim(),evidence_level:answer.level,impact_hypothesis:'Pode dificultar a jornada do visitante. O impacto comercial permanece não demonstrado sem medições.',proposed_fix:criterionFix(niche,id),test_method:'Reproduzir a tarefa e comparar o resultado depois da intervenção.'}));const {error:findingsError}=await client.from('audit_findings').insert(findings);if(findingsError)notice('Diagnóstico salvo, mas parte das evidências não foi registrada.',true);}
@@ -57,7 +65,7 @@ export async function renderAudits(redraw:()=>void){
     if(file){if(file.size>50*1024*1024)notice('Diagnóstico salvo, mas o arquivo excede 50 MB.',true);else{const path=`${state.user.id}/${audit.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;const {error:uploadError}=await client.storage.from('fieldwork-evidence').upload(path,file,{upsert:false});if(uploadError)notice('Diagnóstico salvo, mas o arquivo não foi enviado.',true);else await client.from('evidence_assets').insert({audit_id:audit.id,owner_id:state.user.id,storage_path:path,content_type:file.type,original_name:file.name});}}
     const evidenceList=supported.slice(0,3).map(([id,a],i)=>`${i+1}. ${criterionTitle(niche,id)}\n   Observação: ${a.note.trim()}\n   Evidência declarada: ${levels.find(l=>l[0]===a.level)?.[1]}\n   Correção proposta: ${criterionFix(niche,id)}`).join('\n\n');
     reportText=`DIAGNÓSTICO DE CONVERSÃO | ${company}\nSite: ${website}\nNicho: ${niche}\nDispositivo: ${device}\n\n${evidenceList?`OPORTUNIDADES OBSERVADAS (${supported.length} registros)\n${evidenceList}${supported.length>3?'\n\nOutras observações constam no registro interno.':''}`:'Nenhuma oportunidade com descrição suficiente. Não forçar uma oferta.'}\n\n${positive.length?`PONTOS QUE FUNCIONAM\n${positive.slice(0,4).join(' · ')}\n\n`:''}LIMITE DA CONCLUSÃO: observações de usabilidade não comprovam perda financeira ou aumento futuro de conversão.\n\nPRÓXIMO PASSO: ${next}`;
-    await loadRecords();redraw();
+    await loadRecords();
     $('#cloud-report')!.innerHTML=`<section class="cloud-card"><h3>Relatório gerado</h3><pre class="cloud-report">${esc(reportText)}</pre><div class="cloud-actions"><button class="cloud-button" id="copy-report">Copiar relatório</button>${canSell()&&observation?'<button class="cloud-button secondary" id="send-crm">Criar oportunidade no CRM</button>':''}</div><p id="cloud-feedback" aria-live="polite"></p></section>`;
     $('#copy-report')?.addEventListener('click',()=>navigator.clipboard.writeText(reportText));
     $('#send-crm')?.addEventListener('click',async()=>{

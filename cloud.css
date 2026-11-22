@@ -19,3 +19,59 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 @media(max-width:620px){.cloud-main{padding:19px 14px 55px}.cloud-kpis,.cloud-grid,.cloud-grid.three{grid-template-columns:1fr}.cloud-card{padding:15px}.cloud-top{margin-bottom:17px}.cloud-auth-intro h1{font-size:27px}.cloud-fieldset .choices{display:grid;gap:8px}.cloud-table{min-width:570px}}
 .cloud-progress-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:13px;color:#486575}.cloud-progress-track{height:8px;border-radius:30px;background:#e0ece9;margin:12px 0 22px;overflow:hidden}.cloud-progress-track span{display:block;height:100%;background:#0b9482;transition:width .2s}.cloud-days{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:7px}.cloud-days button{border:1px solid #cfdee1;background:#f6faf9;border-radius:9px;padding:9px 3px;color:#315364;min-width:0}.cloud-days button strong,.cloud-days button small{display:block}.cloud-days button strong{font-size:15px}.cloud-days button small{font-size:10px;color:#708b93}.cloud-days button[aria-current=step]{border-color:#0a8f7d;background:#e4f6ef;color:#0a786c}.cloud-plan-tasks{display:grid;gap:10px;margin-top:18px}.cloud-plan-task{display:flex!important;gap:11px!important;align-items:flex-start!important;border:1px solid #e0eaec;background:#f8fbfb;padding:12px;border-radius:10px;font-size:14px!important;font-weight:600!important;color:#2c4e60!important}.cloud-plan-task input{width:20px!important;min-height:20px!important;accent-color:#0b9381;flex:none}.cloud-plan-task:has(input:checked) span{text-decoration:line-through;color:#718a95}
 @media(max-width:850px){.cloud-days{grid-template-columns:repeat(6,minmax(0,1fr))}}@media(max-width:460px){.cloud-days{grid-template-columns:repeat(5,minmax(0,1fr))}}
+
+/* Guia assistido: a instrução principal é visível; aprofundamento é opcional. */
+.guide-heading{margin:0 0 18px;max-width:880px}
+.guide-heading h2{font-size:clamp(28px,3.5vw,39px);line-height:1.15;letter-spacing:-.035em;color:#142f42;margin:12px 0}
+.guide-heading p{font-size:16px;color:#496372;line-height:1.65;margin:0}
+.guide-progress{margin-bottom:17px;padding:16px 20px}
+.guide-progress .cloud-progress-track{margin:12px 0 8px}
+.guide-progress p{margin:4px 0 0;font-size:14px}
+.guide-navigator{background:#fff;border:1px solid #d9e5ec;border-radius:14px;margin:14px 0;padding:14px 17px}
+.guide-navigator summary,.guide-execution summary,.guide-help summary,.guide-advanced summary{cursor:pointer;font-weight:780;color:#176358;font-size:15px;line-height:1.5;min-height:36px}
+.guide-navigator .cloud-days{margin-top:14px}
+.guide-card{max-width:970px;padding:clamp(18px,3vw,30px)}
+.guide-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.guide-counter{font-size:13px;letter-spacing:.04em;color:#08786e;font-weight:850}
+.guide-card-head h3{font-size:clamp(23px,3vw,31px);line-height:1.21;margin:10px 0;color:#142f42}
+.guide-card-head p{margin:0;font-size:15px;color:#506a7b}
+.guide-step-status{flex:none;border:1px solid #b5dfd1;background:#e6f6ef;border-radius:99px;padding:7px 10px;color:#0d7669;font-size:13px;font-weight:750}
+.guide-small-steps{display:flex;align-items:center;gap:8px;margin:23px 0;flex-wrap:wrap}
+.guide-small-steps span{display:grid;place-items:center;border:1px solid #c6d8de;color:#5b7484;background:#f5f8fa;border-radius:50%;min-width:30px;height:30px;font-size:14px;font-weight:800}
+.guide-small-steps span.active{background:#0c8276;border-color:#0c8276;color:#fff}
+.guide-small-steps span.complete{background:#e0f4ea;border-color:#82cbb7;color:#117765}
+.guide-instructions{max-width:820px}
+.guide-section{margin:21px 0}
+.guide-section h4,.guide-proof label{display:block;font-size:16px;font-weight:850;color:#24465a;margin:0 0 8px}
+.guide-section p{font-size:16px;line-height:1.67;color:#334f60;margin:0}
+.guide-execution{background:#f4faf8;border:1px solid #cce4db;border-radius:14px;padding:15px 19px;margin:20px 0}
+.guide-execution[open] summary{margin-bottom:12px}
+.guide-execution ol{padding-left:24px;display:grid;gap:10px;margin:0}
+.guide-execution li{font-size:16px;line-height:1.65;color:#284b5e}
+.guide-example{background:#f4f7fa;border-left:4px solid #0a8577;padding:17px;border-radius:10px;margin:18px 0}
+.guide-example strong{font-size:15px;color:#235665}
+.guide-example p{font-size:15px;line-height:1.6;margin:7px 0 0}
+.guide-resource-actions{display:flex;align-items:center;flex-wrap:wrap;gap:13px;margin:20px 0}
+.guide-resource-actions a{font-size:15px}
+.guide-help,.guide-advanced{border-top:1px solid #e3ebec;padding:13px 0}
+.guide-help p,.guide-advanced p{font-size:15px;line-height:1.65}
+.guide-proof{border-top:1px solid #dce8e9;margin-top:20px;padding-top:22px}
+.guide-proof label span{font-weight:500;color:#607986;font-size:14px}
+.guide-proof textarea{display:block;width:100%;border:1px solid #bdcfd8;background:#fff;color:#172f3f;border-radius:10px;padding:13px;font:inherit;font-size:16px;resize:vertical;min-height:90px}
+.guide-proof .cloud-actions{margin-top:12px}
+.guide-proof .cloud-actions button{font-size:15px}
+#guide-feedback{min-height:19px;color:#0e766c;font-size:14px;margin:8px 0}
+#guide-feedback.guide-error{color:#a04124;font-weight:700}
+.guide-bottom-note{max-width:970px;padding:12px 3px;font-size:14px;color:#4e6b7a}
+.guide-card>.guide-navigator{background:#f8fbfa;margin-top:25px}
+@media(max-width:620px){
+  .guide-heading h2{font-size:30px}
+  .guide-card-head{display:block}
+  .guide-step-status{display:inline-block;margin-top:12px}
+  .guide-progress{padding:15px}
+  .guide-proof .cloud-actions{display:grid}
+  .guide-proof .cloud-actions button,.guide-resource-actions button{width:100%}
+  .guide-execution{padding:13px 15px}
+  .guide-card{padding:18px 15px}
+  .guide-navigator{padding:12px}
+}
