@@ -38,3 +38,18 @@ python3 -m http.server 8877
 ```
 
 Se Chromium estiver disponível, execute `npm run test:browser` em outro terminal com o servidor ativo. Verifique 360, 390, 768 e 1280 px, URLs privadas sem sessão e isolamento entre papéis. Auditorias heurísticas não provam aumento de conversão sem dados medidos.
+
+## Fieldwork 2.0: Conversão Reversa (2026-11-22)
+
+A navegação **Começar / Continuar** e **Missões e método** utiliza o novo motor em `fieldwork-v2.js`, com conteúdo em `fieldwork-method.js` e estilos em `fieldwork-v2.css`. O login, as permissões, o CRM, as propostas e a biblioteca continuam usando a estrutura anterior, sem retirar dados existentes.
+
+- **30 dias são o prazo total do sprint**, não uma restrição para avançar etapas; é possível executar várias missões no mesmo dia.
+- Cada prospect possui **10 missões independentes**: entender negócio, aquisição, objetivo comercial, referência do site ideal, comparação, oportunidade, abordagem, descoberta, proposta e fechamento.
+- O sistema exige resultado descritivo antes de concluir uma missão; o usuário também pode salvar um rascunho e retomar em outro dispositivo.
+- Contato comercial não pode ser marcado como realizado enquanto estiver em rascunho; interesse, proposta, contrato e entrada recebida não são equivalentes.
+- As 10 aulas adicionais `metodo-v2-*` foram publicadas na biblioteca privada (total: 69 aulas). Não há necessidade de ler o Blue Book antes de executar.
+- O estado é armazenado em `public.fieldwork_sprints` e `public.fieldwork_strategies`, protegidas por RLS. Scripts reexecutáveis: `supabase/sql/fieldwork_v2_schema.sql` e `supabase/sql/fieldwork_v2_bluebook.sql`.
+
+**Importante:** os scripts SQL já foram aplicados ao banco de produção. A existência do arquivo no Git não faz o deploy da base de dados. As versões anteriores de `plan_days` e `learning_progress` continuam preservadas para auditoria e compatibilidade.
+
+Para validar o código depois de instalar as dependências: `npm test` e `npm run build`. A experiência do primeiro acesso autenticado ainda exige uma validação humana em navegador real.

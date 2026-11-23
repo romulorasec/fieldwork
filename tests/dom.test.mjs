@@ -37,7 +37,7 @@ test('a biblioteca não inclui lições no HTML ou JavaScript público',()=>{
 test('o fluxo do workspace inclui plano, proposta, biblioteca e papéis separados',()=>{
   const source=read('cloud.ts');
   assert.doesNotMatch(source,/showMFA|\.auth\.mfa\./);
-  assert.match(source,/renderPlan\(renderShell\)/);
+  assert.match(source,/__fwV2/);
   assert.match(source,/renderOffers\(\)/);
   assert.match(source,/\['admin','Administração'\]/);
   assert.match(source,/Biblioteca completa/);
