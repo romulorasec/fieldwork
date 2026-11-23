@@ -69,3 +69,16 @@ test("tabelas novas possuem políticas por usuário e por workspace",()=>{
   assert.match(sql,/p\.owner_id = \(select auth\.uid\(\)\)/);
   assert.match(sql,/revoke all on public\.fieldwork_strategies from anon/);
 });
+
+test("prospeccao permite INSERT RETURNING do proprio usuario sem abrir leitura para outros tenants",()=>{
+  const patch=read("supabase/sql/fieldwork_v2_rls_hotfix.sql");
+  assert.match(patch,/drop policy if exists prospects_read/);
+  assert.match(patch,/owner_id=\(select auth\.uid\(\)\) and private\.is_member\(workspace_id\)/);
+  assert.match(patch,/private\.can_view_prospect\(id\)/);
+  assert.doesNotMatch(patch,/with check\s*\(\s*true\s*\)/i);
+  const schema=read("supabase/sql/fieldwork_v2_schema.sql");
+  assert.doesNotMatch(schema,/m\.workspace_id = workspace_id/);
+  assert.doesNotMatch(schema,/p\.workspace_id = workspace_id/);
+  assert.match(patch,/p\.workspace_id=fieldwork_strategies\.workspace_id/);
+  assert.match(patch,/private\.is_member\(fieldwork_sprints\.workspace_id\)/);
+});

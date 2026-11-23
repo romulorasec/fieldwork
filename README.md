@@ -53,3 +53,7 @@ A navegação **Começar / Continuar** e **Missões e método** utiliza o novo m
 **Importante:** os scripts SQL já foram aplicados ao banco de produção. A existência do arquivo no Git não faz o deploy da base de dados. As versões anteriores de `plan_days` e `learning_progress` continuam preservadas para auditoria e compatibilidade.
 
 Para validar o código depois de instalar as dependências: `npm test` e `npm run build`. A experiência do primeiro acesso autenticado ainda exige uma validação humana em navegador real.
+
+### Correção de cadastro de leads e RLS (2026-11-22)
+
+A criação do prospect com `.insert(...).select('id').single()` era bloqueada pela política `prospects_read` porque `private.can_view_prospect` procura um registro ainda não visível durante `INSERT RETURNING`. A nova política concede leitura direta ao dono autenticado com vínculo ativo, mantendo a regra de leitura administrativa/de atribuição já existente. O ajuste foi aplicado no Supabase em produção e está registrado em `supabase/sql/fieldwork_v2_rls_hotfix.sql`. Corrigimos também as referências ao workspace nas regras das tabelas `fieldwork_sprints` e `fieldwork_strategies`. Foram realizados testes de cadastro com retorno de ID, salvamento de estratégia e negação de cadastro em outro workspace, com transações revertidas.

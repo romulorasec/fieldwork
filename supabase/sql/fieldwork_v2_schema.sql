@@ -40,7 +40,7 @@ using (
   user_id = (select auth.uid()) and exists (
     select 1 from public.memberships m
     where m.user_id = (select auth.uid())
-      and m.workspace_id = workspace_id and m.status = 'active'
+      and m.workspace_id = fieldwork_sprints.workspace_id and m.status = 'active'
   )
 );
 create policy fieldwork_sprint_member_insert on public.fieldwork_sprints
@@ -49,7 +49,7 @@ with check (
   user_id = (select auth.uid()) and exists (
     select 1 from public.memberships m
     where m.user_id = (select auth.uid())
-      and m.workspace_id = workspace_id and m.status = 'active'
+      and m.workspace_id = fieldwork_sprints.workspace_id and m.status = 'active'
   )
 );
 create policy fieldwork_sprint_member_update on public.fieldwork_sprints
@@ -58,14 +58,14 @@ using (
   user_id = (select auth.uid()) and exists (
     select 1 from public.memberships m
     where m.user_id = (select auth.uid())
-      and m.workspace_id = workspace_id and m.status = 'active'
+      and m.workspace_id = fieldwork_sprints.workspace_id and m.status = 'active'
   )
 )
 with check (
   user_id = (select auth.uid()) and exists (
     select 1 from public.memberships m
     where m.user_id = (select auth.uid())
-      and m.workspace_id = workspace_id and m.status = 'active'
+      and m.workspace_id = fieldwork_sprints.workspace_id and m.status = 'active'
   )
 );
 
@@ -79,7 +79,7 @@ using (
   owner_id = (select auth.uid()) and exists (
     select 1 from public.memberships m
     where m.user_id = (select auth.uid())
-      and m.workspace_id = workspace_id and m.status = 'active'
+      and m.workspace_id = fieldwork_strategies.workspace_id and m.status = 'active'
   )
 );
 create policy fieldwork_strategy_member_insert on public.fieldwork_strategies
@@ -89,13 +89,13 @@ with check (
   and exists (
     select 1 from public.memberships m
     where m.user_id = (select auth.uid())
-      and m.workspace_id = workspace_id and m.status = 'active'
+      and m.workspace_id = fieldwork_strategies.workspace_id and m.status = 'active'
   )
   and exists (
     select 1 from public.prospects p
     where p.id = prospect_id
       and p.owner_id = (select auth.uid())
-      and p.workspace_id = workspace_id
+      and p.workspace_id = fieldwork_strategies.workspace_id
   )
 );
 create policy fieldwork_strategy_member_update on public.fieldwork_strategies
@@ -104,7 +104,7 @@ using (
   owner_id = (select auth.uid()) and exists (
     select 1 from public.memberships m
     where m.user_id = (select auth.uid())
-      and m.workspace_id = workspace_id and m.status = 'active'
+      and m.workspace_id = fieldwork_strategies.workspace_id and m.status = 'active'
   )
 )
 with check (
@@ -112,13 +112,13 @@ with check (
   and exists (
     select 1 from public.memberships m
     where m.user_id = (select auth.uid())
-      and m.workspace_id = workspace_id and m.status = 'active'
+      and m.workspace_id = fieldwork_strategies.workspace_id and m.status = 'active'
   )
   and exists (
     select 1 from public.prospects p
     where p.id = prospect_id
       and p.owner_id = (select auth.uid())
-      and p.workspace_id = workspace_id
+      and p.workspace_id = fieldwork_strategies.workspace_id
   )
 );
 
