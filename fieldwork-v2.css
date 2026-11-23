@@ -1,0 +1,67 @@
+/* Fieldwork 2.0 / jornada guiada. Mobile-first, contraste e foco. */
+.fw-hero{max-width:960px;margin-bottom:20px}
+.fw-overline{display:inline-block;font-size:11px;letter-spacing:.12em;font-weight:850;color:#078475}
+.fw-hero h2{font-size:clamp(26px,3.9vw,39px);line-height:1.18;letter-spacing:-.035em;max-width:850px;margin:8px 0 10px;color:#133347}
+.fw-hero p{font-size:16px;line-height:1.65;color:#526d7d;max-width:760px;margin:0}
+.fw-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;max-width:1000px}
+.fw-stats>div{background:white;border:1px solid #dce6ea;border-radius:15px;padding:16px 19px;min-width:0}
+.fw-stats small{display:block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#657b87}
+.fw-stats strong{display:block;color:#107c6f;font-size:clamp(23px,3vw,33px);line-height:1.3;margin:2px 0}
+.fw-stats span{font-size:12px;color:#627c89}
+.fw-metrics-note{font-size:12px;color:#546e7c;margin:9px 0 20px;max-width:900px}
+.fw-panel{max-width:970px;padding:clamp(17px,3.3vw,30px);background:#fff;border:1px solid #d7e5e9;border-radius:17px;margin-top:17px;box-shadow:0 3px 12px #0c2b3a09}
+.fw-main h3{font-size:clamp(22px,3vw,30px);letter-spacing:-.025em;line-height:1.24;margin:13px 0;color:#17384b}
+.fw-main>p{font-size:15px;color:#466372;line-height:1.65}
+.fw-step-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.fw-step-top small{color:#5d7c8a;font-size:12px}
+.fw-pill{display:inline-block;font-size:11px;letter-spacing:.055em;font-weight:820;border:1px solid #b2ddd1;border-radius:100px;background:#e9f7f1;color:#08776b;padding:5px 10px}
+.fw-why,.fw-example{border-radius:12px;padding:15px 18px;margin:17px 0;background:#ecf7f3;border:1px solid #cde8dd}
+.fw-why strong,.fw-example strong{color:#116c5f;font-size:15px}
+.fw-why p,.fw-example p{font-size:15px;color:#345968;line-height:1.65;margin:7px 0 0}
+.fw-example{background:#f3f7fa;border-color:#dae5eb}
+.fw-example strong{color:#2d5266}
+.fw-how{border:1px solid #cfdfdf;background:#f8fbfa;border-radius:12px;padding:17px 20px;margin:18px 0}
+.fw-how>strong{font-size:17px;color:#173e4e}
+.fw-how ol{display:grid;gap:12px;padding-left:24px;margin:13px 0 0}
+.fw-how li{font-size:15px;line-height:1.7;color:#2b4e5e;padding-left:3px}
+.fw-how code{background:#e4efed;padding:2px 4px;border-radius:4px;font-size:13px;overflow-wrap:anywhere}
+.fw-form{display:grid;gap:13px;max-width:860px;margin:22px 0 0}
+.fw-form>label,.fw-field{display:grid;gap:6px;font-weight:760;font-size:14px;color:#294d60}
+.fw-form input,.fw-form textarea,.fw-form select{width:100%;max-width:100%;border:1px solid #bfd2d9;border-radius:10px;background:white;color:#203f52;padding:11px 13px;min-height:43px;font:inherit;font-size:15px;line-height:1.5;resize:vertical}
+.fw-form textarea{min-height:76px}
+.fw-form :is(input,textarea,select):focus-visible,.fw-toolbar select:focus-visible,.fw-main button:focus-visible,.fw-map button:focus-visible{outline:3px solid #3b83a6;outline-offset:2px}
+.fw-required,.fw-optional{font-size:11px;font-weight:500;color:#647b87;margin-left:5px}
+.fw-required{color:#247f73}
+.fw-tip{color:#607b87;font-size:13px;line-height:1.6;margin:6px 0}
+.fw-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.fw-actions button{font-size:15px}
+.fw-status{font-size:13px;color:#117668;font-weight:700;min-height:17px;margin:5px 0}
+.fw-error{color:#a54031}
+.fw-extra{border-top:1px solid #e2ebee;padding:13px 0}
+.fw-extra summary,.fw-map summary{cursor:pointer;font-size:15px;font-weight:780;color:#18665f;line-height:1.55}
+.fw-extra p{color:#385f6d;font-size:14px;line-height:1.7;margin:9px 0}
+.fw-resources{border-top:1px solid #e2eaed;margin-top:12px;padding-top:16px}
+.fw-resources>strong{display:block;font-size:14px;color:#2b5061;margin-bottom:10px}
+.fw-resources>div{display:flex;gap:9px;flex-wrap:wrap}
+.fw-resources a{font-size:13px;font-weight:650;background:#f1f8f6;padding:7px 11px;border:1px solid #ccdfd9;border-radius:9px;text-decoration:none;color:#08736a}
+.fw-resources a:hover{text-decoration:underline}
+.fw-toolbar{display:flex;gap:12px;justify-content:space-between;align-items:end;max-width:970px;flex-wrap:wrap;margin:16px 0}
+.fw-toolbar label{display:grid;gap:7px;color:#365969;font-size:13px;font-weight:780;flex:1;min-width:190px}
+.fw-toolbar select{max-width:460px;min-height:44px;border:1px solid #c3d8df;border-radius:9px;padding:8px 12px;background:white;color:#234456;font-size:15px}
+.fw-progress{max-width:970px;margin:20px 0}
+.fw-progress>div:first-child{display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap;font-size:13px;color:#355f6d}
+.fw-progress span{color:#557584}
+.fw-bar{height:9px;border-radius:20px;overflow:hidden;background:#e0edea;margin-top:9px}
+.fw-bar>span{display:block;height:100%;background:#0d8b78}
+.fw-map{max-width:970px;border:1px solid #d5e4e9;background:white;border-radius:14px;padding:14px 17px;margin:17px 0}
+.fw-map-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:16px}
+.fw-map-item{text-align:left;background:#f7f9fa;border:1px solid #e0eaec;border-radius:9px;padding:10px 12px;font-size:13px;color:#315264;font-weight:650;min-height:48px}
+.fw-map-item:hover{border-color:#0e8877}
+.fw-map-item.complete{background:#eaf8f2;color:#08796c;border-color:#9ad6bd}
+.fw-map-item span{color:#789099;margin-right:5px}
+.fw-mission-nav{border-top:1px solid #e1ebee;padding-top:17px;margin-top:22px;display:flex;justify-content:space-between;gap:12px}
+.fw-mission-nav button{color:#0d756e;background:#edf8f3;border:1px solid #c4e0d3;border-radius:10px;padding:10px 13px;font-size:13px;font-weight:780}
+.fw-footer-note{max-width:970px;color:#527180;font-size:13px;line-height:1.65;margin:16px 0 40px}
+.fw-offer-extra{margin-top:18px}
+@media(max-width:700px){.fw-stats{grid-template-columns:repeat(3,minmax(0,1fr))}.fw-stats>div{padding:12px 10px}.fw-stats small{font-size:10px}.fw-stats span{font-size:11px}.fw-map-grid{grid-template-columns:1fr}.fw-toolbar{align-items:stretch}.fw-toolbar select{width:100%;max-width:none}.fw-toolbar button{width:100%}}
+@media(max-width:430px){.fw-stats{gap:6px}.fw-stats>div{padding:11px 8px}.fw-stats strong{font-size:24px}.fw-hero h2{font-size:26px}.fw-how{padding:15px 14px}.fw-how ol{padding-left:21px}.fw-panel{padding:17px 14px}.fw-actions{display:grid;grid-template-columns:1fr}.fw-actions button{width:100%}.fw-mission-nav button{font-size:12px;padding:10px 8px}}

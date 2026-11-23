@@ -37,13 +37,13 @@ function renderShell(){
   const role=state.member.role;
   const access={prospects:['admin','sales','partner'].includes(role),audits:canAudit(),admin:isAdmin()};
   if(state.view==='prospects'&&!access.prospects || ['audits','tasks'].includes(state.view)&&!access.audits || state.view==='offers'&&!canSell() || state.view==='admin'&&!access.admin)state.view='today';
-  const navigation=[['today','Começar / Continuar'],['plan','Mapa dos 30 dias'],...(access.audits?[['tasks','Próximas ações']]:[]),...(access.prospects?[['prospects','Prospects e CRM']]:[]),...(access.audits?[['audits','Auditorias']]:[]),...(canSell()?[['offers','Propostas e ofertas']]:[]),['learning','Práticas rápidas'],...(access.admin?[['admin','Administração']]:[])];
+  const navigation=[['today','Começar / Continuar'],['plan','Missões e método'],...(access.audits?[['tasks','Próximas ações']]:[]),...(access.prospects?[['prospects','Prospects e CRM']]:[]),...(access.audits?[['audits','Auditorias']]:[]),...(canSell()?[['offers','Propostas e ofertas']]:[]),['learning','Práticas rápidas'],...(access.admin?[['admin','Administração']]:[])];
   root.innerHTML=`<div class="cloud-shell"><aside class="cloud-side"><h1>Fieldwork</h1><small>WORKSPACE / CONVERSÃO</small><div class="role">${esc(state.user.email)}<br><strong>${esc(roles[role]||role)}</strong></div><nav aria-label="Área de trabalho">${navigation.map(([key,name])=>`<button data-view="${key}" ${state.view===key?'aria-current="page"':''}>${esc(name)}</button>`).join('')}<a href="bluebook.html">Biblioteca completa</a></nav><button class="logout" id="logout">Sair</button></aside><main class="cloud-main"><header class="cloud-top"><strong>${esc((state.member.workspaces as {name?:string}|null)?.name||'Fieldwork')}</strong><span>Uma ação com propósito, depois a próxima.</span></header><div id="cloud-content"></div><p class="cloud-foot">A análise identifica hipóteses e fatos observados; somente dados medidos demonstram impacto comercial.</p></main></div>`;
   root.querySelectorAll<HTMLButtonElement>('[data-view]').forEach(button=>button.addEventListener('click',()=>{state.view=button.dataset.view||'today';history.replaceState(null,'','cloud.html#'+state.view);renderShell();}));
   $('#logout')?.addEventListener('click',signOut);
-  if(state.view==='today')void renderPlan(renderShell);
+  if(state.view==='today')void ((window as any).__fwV2?.render?(window as any).__fwV2.render():renderPlan(renderShell));
   if(state.view==='tasks')renderTasks(renderShell);
-  if(state.view==='plan')void renderPlan(renderShell);
+  if(state.view==='plan')void ((window as any).__fwV2?.render?(window as any).__fwV2.render():renderPlan(renderShell));
   if(state.view==='prospects')renderProspects(renderShell);
   if(state.view==='audits')renderAudits(renderShell);
   if(state.view==='offers')void renderOffers();
@@ -92,4 +92,5 @@ async function renderLearning(){
 }
 
 client.auth.onAuthStateChange((event)=>{if(event==='PASSWORD_RECOVERY'){history.replaceState(null,'','cloud.html#setup');showLogin(boot,true);}});
+(window as any).__fwApp={client,state,root,loadRecords,renderShell};
 void boot();
